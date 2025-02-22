@@ -1,14 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script src="AmbientLightBg.js"></script>
-
-	let colorbg = new Color4Bg.AmbientLightBg({
-	dom: "box",
-	colors: ["#007FFE","#3099FE","#60B2FE","#90CCFE","#C0E5FE","#F0FFFE"],
-	loop: true
-})
-		
+	
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人主页模板</title>
@@ -40,9 +33,18 @@
             width: 100%;
         }
     </style>
+	<script src="AmbientLightBg.js"></script>
 </head>
 <body>
- 
+
+	<stript>
+		let colorbg = new Color4Bg.AmbientLightBg({
+	dom: "box",
+	colors: ["#007FFE","#3099FE","#60B2FE","#90CCFE","#C0E5FE","#F0FFFE"],
+	loop: true
+})
+	</stript>
+
 <div class="header">
     <h1>欢迎来到我的主页</h1>
 </div>
