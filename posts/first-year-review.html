@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大一上学期复盘：普通院校里，我把时间投给了什么 · 拾穗集</title>
+<meta name="description" content="绩点、竞赛、英语、开源四个方向的投入产出审计，包含两件最亏的事。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = "light"; }
+  })();
+</script>
+</head>
+<body data-page="post" data-root="../">
+
+<a class="skip-link" href="#main">跳到正文</a>
+<div class="reading-progress" id="readingProgress"></div>
+
+<header class="site-header">
+  <div class="container inner">
+    <h1 class="site-title">
+      <span class="dot">·</span>
+      <a href="../index.html">拾穗集</a>
+      <span class="sub">Gleanings</span>
+    </h1>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../archive.html">归档</a>
+      <a href="../about.html">关于</a>
+      <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="切换主题">
+        <span class="sun" aria-hidden="true">☀</span>
+        <span class="moon" aria-hidden="true">☾</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container">
+
+    <div class="post-header">
+      <p class="breadcrumb">
+        <a href="../index.html">首页</a> / <a href="../archive.html">归档</a> / 随笔
+      </p>
+      <h1 class="post-title">大一上学期复盘：普通院校里，我把时间投给了什么</h1>
+      <div class="post-meta">
+        <time datetime="2026-01-14">2026 年 1 月 14 日</time>
+        <span>·</span><span>约 8 分钟</span>
+        <span>·</span><span data-site-author>你的名字</span>
+      </div>
+    </div>
+
+    <div class="post-layout">
+      <article class="prose">
+
+        <p>
+          期末结束那天，我把这学期的时间账本翻出来看了一遍。写这篇复盘的目的不是励志，
+          而是<strong>给自己留下一份可对照的记录</strong>：半年后回来看，当时哪些判断是对的，
+          哪些是在自我感动。
+        </p>
+
+        <h2>一、先摆事实，再谈感受</h2>
+        <p>四个主要方向的粗略投入与结果：</p>
+        <table>
+          <thead>
+            <tr><th>方向</th><th>投入</th><th>结果</th><th>我的评价</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>课内学业</td><td>约 40%</td><td>绩点处于专业前列</td><td>有效，但不该占这么多</td></tr>
+            <tr><td>编程自学</td><td>约 30%</td><td>能独立写小工具，读完论文推导</td><td>回报最高</td></tr>
+            <tr><td>英语</td><td>约 15%</td><td>能读英文文档，口语依旧差</td><td>方向对，方法低效</td></tr>
+            <tr><td>竞赛／社群</td><td>约 15%</td><td>打了一次比赛，没拿奖</td><td>收获在过程之外</td></tr>
+          </tbody>
+        </table>
+        <p>占比是我按「清醒时间」粗估的，不精确，但足够看出结构问题。</p>
+
+        <h2>二、做对的三件事</h2>
+        <h3>1. 把课内学习和长期目标拆开算账</h3>
+        <p>
+          高数、线代、概率论这些课，如果只按「考试要考什么」来学，它们就是四年的负担；
+          如果按「以后读论文需要什么」来学，它们就是必须打好的地基。
+          同一门课，我后来改成<strong>先看它在机器学习里出现在哪，再回去补证明</strong>，
+          内驱力完全不一样。
+        </p>
+
+        <h3>2. 用产出倒逼输入</h3>
+        <p>
+          我这学期最有效的学习方式是：给自己定一个能展示的小目标（比如「写一个能跑通的注意力实现」），
+          然后被迫把沿途每个含糊的地方弄清楚。相比之下，「今天看两小时视频课」几乎没有留下什么。
+        </p>
+
+        <h3>3. 尽早开始写东西</h3>
+        <p>
+          这个博客就是那时开始写的。写作逼我把「好像懂了」变成「写下来还能站得住」，
+          效果比反复看书强得多——而且留下了可检索的记录。
+        </p>
+
+        <h2>三、两件最亏的事</h2>
+        <h3>亏点一：在低信息量的资料里打转</h3>
+        <p>
+          我花了很多时间在各种「三分钟入门」的短视频和二手总结上。它们不是没价值，
+          但密度太低，还容易让人产生已经学会的错觉。
+          真正的转折发生在<strong>开始直接读官方文档和原始论文</strong>之后，
+          哪怕第一遍只能读懂一半。
+        </p>
+
+        <h3>亏点二：为了「合群」参加了很多无效社交</h3>
+        <p>
+          不是说要当孤岛，而是有些聚会除了消耗当晚的状态，什么也没留下。
+          我后来用一条线来筛：<strong>这件事结束后，我能不能说出一个具体的收获？</strong>
+          说不出来，就婉拒。
+        </p>
+
+        <div class="callout">
+          <span class="ico" aria-hidden="true">💡</span>
+          <p>
+            复盘里最容易被忽略的是「机会成本」。写「我做了什么」很容易，
+            写「因为做了 A，所以没做 B」才真正让人清醒。
+          </p>
+        </div>
+
+        <h2>四、下一个学期要改的三件事</h2>
+        <ol>
+          <li>
+            <strong>把课内时间压缩到 30%</strong>，腾出的时间用于能形成作品的项目，
+            而不是再看一轮视频课。
+          </li>
+          <li>
+            <strong>英语改成每天固定 30 分钟的输出型训练</strong>（复述一段论文摘要），
+            而不是被动刷单词。
+          </li>
+          <li>
+            <strong>每两周发一篇博客</strong>。写不出来，说明这段时间没有真正的输入，
+            这本身就是最好的警报。
+          </li>
+        </ol>
+
+        <h2>五、给同类处境的人</h2>
+        <p>
+          学校平台确实会影响资源和起点，这一点不必自我安慰。但有一件事是确定的：
+          <strong>互联网把「读到正确的材料」这件事的成本降到了接近零</strong>。
+          真正稀缺的不是资源，而是把一件事持续做够久的能力。
+        </p>
+        <p>
+          半年后我会再写一篇对照。如果到时候这篇里的三条改进都还在原地，
+          那说明问题不在方法，而在执行——那样的复盘才有意义。
+        </p>
+
+      </article>
+
+      <aside class="toc" id="toc" aria-label="文章目录"></aside>
+    </div>
+
+    <nav class="post-nav" id="postNav" aria-label="文章导航"></nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p>© <span data-year>2026</span> <span data-site-author>你的名字</span> · 拾穗集</p>
+    <nav aria-label="页脚导航">
+      <a href="../index.html">首页</a>
+      <a href="../archive.html">归档</a>
+    </nav>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
+
+<script src="../assets/posts.js"></script>
+<script src="../assets/site-config.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的 Python 日常工具链（2026 版） · 拾穗集</title>
+<meta name="description" content="uv + ruff + pytest 的极简工程脚手架，以及五个真实踩坑记录。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = "light"; }
+  })();
+</script>
+</head>
+<body data-page="post" data-root="../">
+
+<a class="skip-link" href="#main">跳到正文</a>
+<div class="reading-progress" id="readingProgress"></div>
+
+<header class="site-header">
+  <div class="container inner">
+    <h1 class="site-title">
+      <span class="dot">·</span>
+      <a href="../index.html">拾穗集</a>
+      <span class="sub">Gleanings</span>
+    </h1>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../archive.html">归档</a>
+      <a href="../about.html">关于</a>
+      <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="切换主题">
+        <span class="sun" aria-hidden="true">☀</span>
+        <span class="moon" aria-hidden="true">☾</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container">
+
+    <div class="post-header">
+      <p class="breadcrumb">
+        <a href="../index.html">首页</a> / <a href="../archive.html">归档</a> / Python
+      </p>
+      <h1 class="post-title">我的 Python 日常工具链（2026 版）</h1>
+      <div class="post-meta">
+        <time datetime="2026-02-27">2026 年 2 月 27 日</time>
+        <span>·</span><span>约 9 分钟</span>
+        <span>·</span><span data-site-author>你的名字</span>
+      </div>
+    </div>
+
+    <div class="post-layout">
+      <article class="prose">
+
+        <p>
+          我折腾环境的时间一度比写代码还多：<code>pip</code> 装到一半报编译错误、
+          两个项目要用不同版本的同一个库、换了台电脑就忘了当初装了什么。
+          后来我把这套流程压缩成三条命令，从此新项目十分钟内就能进入写代码的状态。
+        </p>
+
+        <h2>一、原则：工具要少，且各管一件事</h2>
+        <ul>
+          <li><strong>uv</strong> —— 管解释器、虚拟环境和依赖。</li>
+          <li><strong>ruff</strong> —— 管格式与静态检查（它同时替代了 black、isort、flake8）。</li>
+          <li><strong>pytest</strong> —— 管「我的假设是否成立」。</li>
+        </ul>
+        <p>
+          就这三样。像 <code>poetry</code>、<code>pyenv</code>、<code>pre-commit</code> 这些不是不好，
+          而是在我目前的项目规模下，多一层抽象就多一处会坏的地方。
+        </p>
+
+        <h2>二、新项目：四条命令起步</h2>
+        <div class="code-block">
+          <span class="lang">bash</span>
+<pre><code>uv init demo &amp;&amp; cd demo        # 生成 pyproject.toml 与 .python-version
+uv add numpy pandas             # 写入依赖并锁定 uv.lock
+uv add --dev pytest ruff        # 开发依赖单独分组
+uv run python main.py           # 在项目环境里执行，无需手动 activate</code></pre>
+        </div>
+        <p>
+          关键在于 <code>uv run</code>：它会在执行前确保环境与 <code>uv.lock</code> 一致，
+          于是「我本机明明能跑」这类问题基本消失了。<code>uv.lock</code> 应该提交到 Git，
+          <code>.venv/</code> 不应该。
+        </p>
+
+        <h2>三、目录结构：够用就好</h2>
+        <div class="code-block">
+          <span class="lang">text</span>
+<pre><code>demo/
+├── pyproject.toml        # 依赖与工具配置的唯一入口
+├── uv.lock               # 锁定精确版本，提交进 Git
+├── README.md
+├── src/
+│   └── demo/
+│       ├── __init__.py
+│       ├── data.py       # 读取与清洗，保持纯函数
+│       └── model.py
+└── tests/
+    └── test_data.py</code></pre>
+        </div>
+        <p>
+          用 <code>src/</code> 布局的好处是：测试必须通过安装后的包来导入，
+          而不是靠「当前目录恰好能被 import」的假象。这个差别在小项目上不明显，
+          一旦开始打包就会救命。
+        </p>
+
+        <h2>四、把配置集中到 pyproject.toml</h2>
+        <div class="code-block">
+          <span class="lang">toml</span>
+<pre><code>[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]   # 语法错误、导入顺序、现代化写法、易错模式
+ignore = ["E501"]                     # 行长交给 formatter 处理
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"</code></pre>
+        </div>
+        <p>日常只需要两条命令：</p>
+        <div class="code-block">
+          <span class="lang">bash</span>
+<pre><code>uv run ruff format .      # 格式化
+uv run ruff check --fix . # 静态检查并自动修可修的部分
+uv run pytest             # 跑测试</code></pre>
+        </div>
+        <p>
+          关于 <code>ruff</code> 我的建议是：<strong>一开始只用默认规则集</strong>。
+          我曾经一次性打开了几十条规则，结果每次保存都在修无关紧要的告警，
+          最后把整个配置注释掉了。规则应该一条一条加，每条都要知道为什么加。
+        </p>
+
+        <h2>五、五个真实的坑</h2>
+
+        <h3>1. 不要在系统 Python 里装包</h3>
+        <p>
+          macOS 与多数 Linux 发行版都开始保护系统解释器，直接 <code>pip install</code> 会报
+          <code>externally-managed-environment</code>。这不只是限制，而是在提醒你：
+          项目依赖就该待在项目里。
+        </p>
+
+        <h3>2. 相对导入只在包内有效</h3>
+        <p>
+          直接 <code>python src/demo/model.py</code> 去跑一个用了 <code>from .data import load</code>
+          的文件，必然失败——因为你运行的是脚本而不是模块。正确方式是
+          <code>uv run python -m demo.model</code>，前提是包已安装。
+        </p>
+
+        <h3>3. 可变的默认参数</h3>
+        <div class="code-block">
+          <span class="lang">python</span>
+<pre><code># 错误：默认值只在函数定义时创建一次，会跨调用累积
+def collect(item, bucket=[]):
+    bucket.append(item)
+    return bucket
+
+collect("a")   # ['a']
+collect("b")   # ['a', 'b']  ← 不是 ['b']
+
+# 正确
+def collect(item, bucket=None):
+    bucket = [] if bucket is None else bucket
+    bucket.append(item)
+    return bucket</code></pre>
+        </div>
+
+        <h3>4. 浮点数不能直接比相等</h3>
+        <p>
+          <code>0.1 + 0.2 == 0.3</code> 是 <code>False</code>。用
+          <code>math.isclose(a, b, rel_tol=1e-9)</code>，或者在测试里写
+          <code>pytest.approx(0.3)</code>。
+        </p>
+
+        <h3>5. 打印调试不如日志</h3>
+        <p>
+          一旦代码跑到服务器或长循环里，<code>print</code> 就没有级别、没有时间戳、没法关闭。
+          早点换 <code>logging</code>，代价只有几行：
+        </p>
+        <div class="code-block">
+          <span class="lang">python</span>
+<pre><code>import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+log = logging.getLogger(__name__)
+
+log.info("开始处理 %d 条样本", n)</code></pre>
+        </div>
+
+        <h2>六、什么时候该加工具</h2>
+        <p>我给自己定的触发条件很具体，避免为了「专业感」堆工具：</p>
+        <table>
+          <thead><tr><th>触发条件</th><th>才引入</th></tr></thead>
+          <tbody>
+            <tr><td>有第二个人参与项目</td><td>pre-commit 钩子、PR 模板</td></tr>
+            <tr><td>需要定时或分布式跑任务</td><td>调度框架、容器化</td></tr>
+            <tr><td>训练任务超过一小时</td><td>实验追踪与断点续跑</td></tr>
+            <tr><td>同一个 bug 犯了三次</td><td>写测试，而不是写注释</td></tr>
+          </tbody>
+        </table>
+
+        <h2>小结</h2>
+        <p>
+          工具链的终点不是「我的配置比你的复杂」，而是<strong>从想法到可运行代码的延迟足够短</strong>。
+          现在我的延迟大概是十分钟：四条命令建项目，写函数，写一个测试，跑通，提交。
+          剩下的时间才真正花在问题上。
+        </p>
+
+      </article>
+
+      <aside class="toc" id="toc" aria-label="文章目录"></aside>
+    </div>
+
+    <nav class="post-nav" id="postNav" aria-label="文章导航"></nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p>© <span data-year>2026</span> <span data-site-author>你的名字</span> · 拾穗集</p>
+    <nav aria-label="页脚导航">
+      <a href="../index.html">首页</a>
+      <a href="../archive.html">归档</a>
+    </nav>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
+
+<script src="../assets/posts.js"></script>
+<script src="../assets/site-config.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>把这个博客免费部署到 GitHub Pages · 拾穗集</title>
+<meta name="description" content="从空仓库到可访问链接：GitHub Pages 部署、Actions 自动发布、自定义域名与 HTTPS。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = "light"; }
+  })();
+</script>
+</head>
+<body data-page="post" data-root="../">
+
+<a class="skip-link" href="#main">跳到正文</a>
+<div class="reading-progress" id="readingProgress"></div>
+
+<header class="site-header">
+  <div class="container inner">
+    <h1 class="site-title">
+      <span class="dot">·</span>
+      <a href="../index.html">拾穗集</a>
+      <span class="sub">Gleanings</span>
+    </h1>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../archive.html">归档</a>
+      <a href="../about.html">关于</a>
+      <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="切换主题">
+        <span class="sun" aria-hidden="true">☀</span>
+        <span class="moon" aria-hidden="true">☾</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container">
+
+    <div class="post-header">
+      <p class="breadcrumb">
+        <a href="../index.html">首页</a> / <a href="../archive.html">归档</a> / 工程实践
+      </p>
+      <h1 class="post-title">把这个博客免费部署到 GitHub Pages</h1>
+      <div class="post-meta">
+        <time datetime="2025-12-30">2025 年 12 月 30 日</time>
+        <span>·</span><span>约 6 分钟</span>
+        <span>·</span><span data-site-author>你的名字</span>
+      </div>
+    </div>
+
+    <div class="post-layout">
+      <article class="prose">
+
+        <p>
+          这个站点是纯静态的：没有构建、没有后端、没有数据库。
+          所以它天然适合托管在 GitHub Pages 上——免费、自带 HTTPS、推送即上线。
+          整个过程大约二十分钟。
+        </p>
+
+        <h2>一、准备：把文件放进仓库</h2>
+        <p>站点根目录里需要有 <code>index.html</code>，其余文件按现有结构保持相对路径：</p>
+        <div class="code-block">
+          <span class="lang">text</span>
+<pre><code>blog/
+├── index.html
+├── archive.html
+├── about.html
+├── posts/
+│   └── *.html
+└── assets/
+    ├── style.css
+    ├── posts.js
+    ├── site-config.js
+    └── site.js</code></pre>
+        </div>
+        <p>
+          关键点：所有引用都用<strong>相对路径</strong>（<code>assets/style.css</code>、
+          <code>../index.html</code>），不要写以 <code>/</code> 开头的绝对路径。
+          这样无论部署在 <code>用户名.github.io</code> 还是子路径
+          <code>用户名.github.io/仓库名/</code> 下都能正常打开。
+        </p>
+
+        <h2>二、创建仓库并推送</h2>
+        <div class="code-block">
+          <span class="lang">bash</span>
+<pre><code>cd blog
+git init
+git add .
+git commit -m "init: 个人博客第一版"
+git branch -M main
+git remote add origin https://github.com/&lt;你的用户名&gt;/blog.git
+git push -u origin main</code></pre>
+        </div>
+
+        <h2>三、开启 Pages（最简单的方式）</h2>
+        <ol>
+          <li>进入仓库的 <strong>Settings → Pages</strong>。</li>
+          <li><em>Source</em> 选择 <strong>Deploy from a branch</strong>。</li>
+          <li>分支选 <code>main</code>，目录选 <code>/ (root)</code>，保存。</li>
+          <li>等一两分钟，访问 <code>https://&lt;你的用户名&gt;.github.io/&lt;仓库名&gt;/</code>。</li>
+        </ol>
+        <p>
+          如果域名打开是 404，先去 <strong>Actions</strong> 标签页看有没有失败的部署任务，
+          90% 的问题都在那里有明确的报错。
+        </p>
+
+        <h2>四、进阶：用 Actions 自动部署</h2>
+        <p>
+          分支方式已经够用，但如果你以后想加构建步骤（比如把 Markdown 编译成 HTML），
+          用工作流会更有余地。在仓库里新建：
+        </p>
+        <div class="code-block">
+          <span class="lang">yaml</span>
+<pre><code># .github/workflows/pages.yml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4</code></pre>
+        </div>
+        <p>
+          然后回到 <strong>Settings → Pages</strong>，把 <em>Source</em> 改成
+          <strong>GitHub Actions</strong>。之后每次 <code>git push</code> 都会自动发布。
+        </p>
+
+        <h2>五、自定义域名（可选）</h2>
+        <ol>
+          <li>在仓库根目录添加文件 <code>CNAME</code>，内容只有一行：<code>blog.example.com</code>。</li>
+          <li>在域名服务商处添加一条 CNAME 记录，指向 <code>&lt;用户名&gt;.github.io</code>。</li>
+          <li>回到 Pages 设置里勾选 <strong>Enforce HTTPS</strong>，证书会自动签发。</li>
+        </ol>
+        <div class="callout">
+          <span class="ico" aria-hidden="true">⚠️</span>
+          <p>
+            域名解析生效可能需要几十分钟。这段时间里不要反复改配置——
+            我当初就是因为等不及，来回切换导致证书签发了两次，最后白等一小时。
+          </p>
+        </div>
+
+        <h2>六、几个经验</h2>
+        <ul>
+          <li>
+            <strong>加一个 <code>.nojekyll</code> 空文件</strong>：避免 GitHub 用 Jekyll 处理你的文件，
+            导致下划线开头的目录被忽略。
+          </li>
+          <li>
+            <strong>本地先预览一遍</strong>：直接双击 <code>index.html</code> 就能看，
+            不用装任何服务器。
+          </li>
+          <li>
+            <strong>写文章只改一处</strong>：新增文章时在 <code>assets/posts.js</code> 加一条记录，
+            首页、归档、上下篇导航会自动更新。
+          </li>
+          <li>
+            <strong>别用绝对路径</strong>：这是静态站点部署最常见的翻车点，样式丢失基本都是它。
+          </li>
+        </ul>
+
+        <h2>小结</h2>
+        <p>
+          静态博客最大的好处是<strong>没有需要维护的东西</strong>：没有服务器要续费，
+          没有依赖会过期，十年后打开这几个 HTML 文件，它们依然能正常显示。
+          对一份希望长期写下去的笔记来说，这是很重要的性质。
+        </p>
+
+      </article>
+
+      <aside class="toc" id="toc" aria-label="文章目录"></aside>
+    </div>
+
+    <nav class="post-nav" id="postNav" aria-label="文章导航"></nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p>© <span data-year>2026</span> <span data-site-author>你的名字</span> · 拾穗集</p>
+    <nav aria-label="页脚导航">
+      <a href="../index.html">首页</a>
+      <a href="../archive.html">归档</a>
+    </nav>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
+
+<script src="../assets/posts.js"></script>
+<script src="../assets/site-config.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

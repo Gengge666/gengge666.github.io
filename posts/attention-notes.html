@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>从零读懂自注意力：一份手写推导笔记 · 拾穗集</title>
+<meta name="description" content="把 Q、K、V 拆开揉碎，解释缩放点积注意力的每一步，以及多头注意力到底解决了什么问题。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = "light"; }
+  })();
+</script>
+</head>
+<body data-page="post" data-root="../">
+
+<a class="skip-link" href="#main">跳到正文</a>
+<div class="reading-progress" id="readingProgress"></div>
+
+<header class="site-header">
+  <div class="container inner">
+    <h1 class="site-title">
+      <span class="dot">·</span>
+      <a href="../index.html">拾穗集</a>
+      <span class="sub">Gleanings</span>
+    </h1>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="../index.html">首页</a>
+      <a href="../archive.html">归档</a>
+      <a href="../about.html">关于</a>
+      <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="切换主题">
+        <span class="sun" aria-hidden="true">☀</span>
+        <span class="moon" aria-hidden="true">☾</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container">
+
+    <div class="post-header">
+      <p class="breadcrumb">
+        <a href="../index.html">首页</a> / <a href="../archive.html">归档</a> / 深度学习
+      </p>
+      <h1 class="post-title">从零读懂自注意力：一份手写推导笔记</h1>
+      <div class="post-meta">
+        <time datetime="2026-03-18">2026 年 3 月 18 日</time>
+        <span>·</span><span>约 12 分钟</span>
+        <span>·</span><span data-site-author>你的名字</span>
+      </div>
+    </div>
+
+    <div class="post-layout">
+      <article class="prose">
+
+        <p>
+          第一次看到 <code>Attention(Q, K, V) = softmax(QKᵀ / √d_k) V</code> 时，我的反应是：
+          这五个符号我每个都认识，连起来却完全不知道在干什么。后来我逼着自己把每个矩阵的形状、
+          每一行元素的含义都写出来，才意识到它其实是一件非常朴素的事情——
+          <strong>用相似度做加权平均</strong>。
+        </p>
+        <p>
+          这篇笔记按我当时的理解顺序排列：先讲直觉，再讲符号，最后才落到代码和复杂度。
+        </p>
+
+        <h2>一、先忘掉公式：注意力就是加权平均</h2>
+        <p>假设你有一句话，每个词已经变成了一个向量。现在你要重新表示第 <code>i</code> 个词，办法是：</p>
+        <ol>
+          <li>让第 <code>i</code> 个词去「问」句子里所有词：你和我有多相关？</li>
+          <li>把相关程度归一化成一组权重，加起来等于 1。</li>
+          <li>用这组权重，把所有词的信息加权求和，得到新的第 <code>i</code> 个词。</li>
+        </ol>
+        <p>
+          就这三步。整篇论文要解决的，只是「怎么问」「怎么算相关」以及「怎么让它训得动」。
+        </p>
+
+        <h2>二、Q、K、V 分别是干什么的</h2>
+        <p>把上面三步翻译成矩阵语言：</p>
+        <ul>
+          <li><strong>Q（Query，查询）</strong>：我要找什么。形状 <code>[n, d_k]</code>。</li>
+          <li><strong>K（Key，键）</strong>：我身上有什么标签可供匹配。形状 <code>[n, d_k]</code>。</li>
+          <li><strong>V（Value，值）</strong>：如果被选中，我实际贡献什么内容。形状 <code>[n, d_v]</code>。</li>
+        </ul>
+        <p>
+          它们都不是凭空来的，而是同一个输入 <code>X</code>（形状 <code>[n, d_model]</code>）
+          乘上三个可学习的权重矩阵得到的：
+        </p>
+        <div class="code-block">
+          <span class="lang">text</span>
+<pre><code>Q = X @ W_Q      # [n, d_model] @ [d_model, d_k] -> [n, d_k]
+K = X @ W_K
+V = X @ W_V</code></pre>
+        </div>
+        <p>
+          <code>QKᵀ</code> 得到的是 <code>[n, n]</code> 的分数矩阵：第 <code>i</code> 行第 <code>j</code> 列，
+          就是「第 <code>i</code> 个词对第 <code>j</code> 个词的关注分数」。这就是 <em>自</em>注意力的「自」：
+          Q、K、V 全部来自同一个序列。
+        </p>
+
+        <h2>三、为什么一定要除以 √d_k</h2>
+        <p>这是最容易被当成「玄学调参」的一步，其实理由很干脆。</p>
+        <p>
+          假设 <code>q</code> 和 <code>k</code> 的每个分量都是均值为 0、方差为 1 的独立随机变量，
+          那么点积 <code>q · k</code> 是 <code>d_k</code> 个独立项之和，它的方差就是 <code>d_k</code>。
+          维度越大，点积的绝对值就越容易飙到很大。
+        </p>
+        <p>
+          softmax 对大输入非常敏感：输入分布一旦被拉宽，输出就趋近于 one-hot，
+          梯度也随之趋近于 0——模型不是学错了，而是<strong>学不动了</strong>。
+          除以 <code>√d_k</code> 正好把方差拉回 1，让 softmax 工作在梯度健康的区间。
+        </p>
+        <div class="callout">
+          <span class="ico" aria-hidden="true">💡</span>
+          <p>
+            记忆方式：<strong>除以 √d_k 不是为了归一化数值，而是为了归一化方差</strong>。
+            如果你哪天改了注意力打分的定义（比如加了相对位置偏置），就要重新想想这个缩放还有没有意义。
+          </p>
+        </div>
+
+        <h2>四、多头注意力不是噱头</h2>
+        <p>
+          单个注意力头只能给出一张「关注图」。但语言里的关系是多样的：
+          有的头在跟踪主谓一致，有的头在处理指代，有的头只盯着前一个词。
+          让一个头同时干这些事，它会选择妥协。
+        </p>
+        <p>
+          多头的做法是把 <code>d_model</code> 切成 <code>h</code> 份，每份独立做一次注意力，
+          最后拼接再投影：
+        </p>
+        <div class="code-block">
+          <span class="lang">text</span>
+<pre><code>d_model = 512, h = 8  ->  每个头 d_k = d_v = 64
+计算量几乎不变，但模型获得了 h 个不同的「观察视角」</code></pre>
+        </div>
+        <p>
+          注意总计算量：单头用 512 维做一次，和 8 个头各用 64 维做一次，代价接近。
+          所以多头是<strong>用同样的预算换来了表达多样性</strong>，这是它值得存在的理由。
+        </p>
+
+        <h2>五、一个能跑通的最小实现</h2>
+        <p>下面这段代码去掉了所有工程包装，只保留数学本身，建议逐行对照上面的公式读：</p>
+        <div class="code-block">
+          <span class="lang">python</span>
+<pre><code>import math
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+class SelfAttention(nn.Module):
+    def __init__(self, d_model: int, n_heads: int):
+        super().__init__()
+        assert d_model % n_heads == 0, "d_model 必须能被 n_heads 整除"
+        self.d_model = d_model
+        self.n_heads = n_heads
+        self.d_k = d_model // n_heads
+        self.w_q = nn.Linear(d_model, d_model)
+        self.w_k = nn.Linear(d_model, d_model)
+        self.w_v = nn.Linear(d_model, d_model)
+        self.out = nn.Linear(d_model, d_model)
+
+    def forward(self, x, mask=None):
+        # x: [batch, seq_len, d_model]
+        b, n, _ = x.shape
+        # 1. 线性投影后拆成多头: [b, n, h, d_k] -> [b, h, n, d_k]
+        q = self.w_q(x).view(b, n, self.n_heads, self.d_k).transpose(1, 2)
+        k = self.w_k(x).view(b, n, self.n_heads, self.d_k).transpose(1, 2)
+        v = self.w_v(x).view(b, n, self.n_heads, self.d_k).transpose(1, 2)
+
+        # 2. 缩放点积打分: [b, h, n, n]
+        scores = q @ k.transpose(-2, -1) / math.sqrt(self.d_k)
+        if mask is not None:
+            scores = scores.masked_fill(mask == 0, float("-inf"))
+
+        # 3. 归一化 + 加权求和
+        attn = F.softmax(scores, dim=-1)
+        ctx = attn @ v                          # [b, h, n, d_k]
+
+        # 4. 拼回 [b, n, d_model]
+        ctx = ctx.transpose(1, 2).contiguous().view(b, n, self.d_model)
+        return self.out(ctx), attn
+
+
+if __name__ == "__main__":
+    torch.manual_seed(0)
+    layer = SelfAttention(d_model=64, n_heads=4)
+    x = torch.randn(2, 10, 64)                  # 2 条样本，长度 10
+    y, a = layer(x)
+    print("输出:", tuple(y.shape))              # (2, 10, 64)
+    print("注意力权重行和:", a.sum(-1)[0, 0])   # 应当全是 1.0
+</code></pre>
+        </div>
+        <p>
+          最后一个 <code>print</code> 是我的自检习惯：<strong>softmax 的输出每行必须和为 1</strong>。
+          如果这里不是 1，八成是维度对错了，而这类错误往往会在训练几百步之后才以奇怪的方式暴露出来。
+        </p>
+
+        <h2>六、复杂度，以及两个我曾经搞错的地方</h2>
+        <p>
+          自注意力的时间和空间复杂度都是 <code>O(n² · d)</code>，<code>n²</code> 来自那张
+          <code>[n, n]</code> 的分数矩阵。这是长序列难做的根源，也是后来各种稀疏／线性注意力工作的出发点。
+        </p>
+        <table>
+          <thead>
+            <tr><th>说法</th><th>实际情况</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>「注意力权重就是模型的可解释性」</td>
+              <td>权重只说明信息流动的一个侧面，不能直接当作因果解释</td>
+            </tr>
+            <tr>
+              <td>「多头就是并行加速」</td>
+              <td>并行的确是工程收益，但它的设计动机是表达多样性</td>
+            </tr>
+            <tr>
+              <td>「除法是为了防止数值溢出」</td>
+              <td>溢出只是表象，根因是方差随维度增长导致梯度消失</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>小结</h2>
+        <ul>
+          <li>注意力 = 用相似度做加权平均，Q/K/V 是三种角色而非三种数据。</li>
+          <li><code>1/√d_k</code> 的作用是稳住方差与梯度。</li>
+          <li>多头用同样的预算换取多个观察视角。</li>
+          <li>复杂度瓶颈在 <code>n²</code> 的分数矩阵。</li>
+        </ul>
+        <p>
+          下一篇我打算把位置编码也按这个方式推一遍，尤其是「为什么正弦函数能表达相对位置」这一步——
+          我至今只在直觉层面接受它，还没真正算清楚。
+        </p>
+
+      </article>
+
+      <aside class="toc" id="toc" aria-label="文章目录"></aside>
+    </div>
+
+    <nav class="post-nav" id="postNav" aria-label="文章导航"></nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p>© <span data-year>2026</span> <span data-site-author>你的名字</span> · 拾穗集</p>
+    <nav aria-label="页脚导航">
+      <a href="../index.html">首页</a>
+      <a href="../archive.html">归档</a>
+    </nav>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
+
+<script src="../assets/posts.js"></script>
+<script src="../assets/site-config.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>
