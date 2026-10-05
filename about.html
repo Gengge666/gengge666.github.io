@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>关于 · 拾穗集</title>
+<meta name="description" content="关于本站与作者：一名人工智能专业本科生的学习记录。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = "light"; }
+  })();
+</script>
+</head>
+<body data-page="about" data-root="">
+
+<a class="skip-link" href="#main">跳到正文</a>
+
+<header class="site-header">
+  <div class="container inner">
+    <h1 class="site-title">
+      <span class="dot">·</span>
+      <a href="index.html">拾穗集</a>
+      <span class="sub">Gleanings</span>
+    </h1>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="index.html">首页</a>
+      <a href="archive.html">归档</a>
+      <a href="about.html" aria-current="page">关于</a>
+      <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="切换主题">
+        <span class="sun" aria-hidden="true">☀</span>
+        <span class="moon" aria-hidden="true">☾</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container">
+    <div class="page-head">
+      <h1>关于</h1>
+      <p>一个还在起步的人，和他认真整理过的笔记。</p>
+    </div>
+
+    <div class="about-grid">
+      <aside class="profile-card">
+        <div class="avatar" id="profileAvatar">拾</div>
+        <h2 class="name" id="profileName">你的名字</h2>
+        <p class="role" id="profileRole">人工智能专业 · 本科在读</p>
+        <div class="profile-links" id="profileLinks"><!-- 由 site.js 注入 --></div>
+      </aside>
+
+      <div>
+        <section class="prose" style="max-width:none">
+          <h2>我是谁</h2>
+          <p id="profileBio">
+            这里应当出现一段自我介绍——它会从 <code>assets/site-config.js</code> 读取。
+          </p>
+          <p>
+            我写这个博客的动机很朴素：<strong>输出是最好的检验</strong>。一门课听完、一篇论文读完，
+            如果没法用自己的话把它讲给一个没学过的人听，那多半只是「见过」，还不是「会了」。
+            所以这里的内容会偏重推导过程、失败记录和可复现的步骤，而不是结论的陈列。
+          </p>
+          <p>
+            如果你在读某篇文章时发现了错误，欢迎直接写信告诉我——纠错比赞美更有价值。
+          </p>
+        </section>
+
+        <section style="margin-top:2.6rem">
+          <h2 class="block-title">时间线</h2>
+          <ul class="timeline" id="profileTimeline"><!-- 由 site.js 注入 --></ul>
+        </section>
+
+        <section style="margin-top:1rem">
+          <h2 class="block-title">在学习／用过的东西</h2>
+          <ul class="skill-list" id="profileSkills"><!-- 由 site.js 注入 --></ul>
+          <p style="color:var(--muted);font-size:.9rem;margin-top:1rem">
+            列出来只代表「写过代码、读过文档」，不代表精通。
+          </p>
+        </section>
+
+        <section style="margin-top:2.6rem">
+          <h2 class="block-title">本站</h2>
+          <ul>
+            <li>纯静态页面：原生 HTML、CSS、JavaScript，零依赖、零构建步骤。</li>
+            <li>文章清单集中在 <code>assets/posts.js</code>，署名与链接在 <code>assets/site-config.js</code>。</li>
+            <li>建议部署方式：GitHub Pages（见《把这个博客免费部署到 GitHub Pages》）。</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p>© <span data-year>2026</span> <span data-site-author>你的名字</span> · 拾穗集</p>
+    <nav aria-label="页脚导航">
+      <a href="index.html">首页</a>
+      <a href="archive.html">归档</a>
+    </nav>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
+
+<script src="assets/posts.js"></script>
+<script src="assets/site-config.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

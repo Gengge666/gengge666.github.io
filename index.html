@@ -1,63 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-	
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人主页模板</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f7f7f7;
-        }
-        .header {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-        }
-        .content {
-            margin: 15px;
-            padding: 20px;
-            background-color: white;
-        }
-        .footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
-    <script src="AmbientLightBg.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>拾穗集 · 一个人的学习笔记</title>
+<meta name="description" content="拾穗集 —— 记录机器学习、编程与自我训练过程中的所得，一个普通学生的长期笔记。">
+<meta name="theme-color" content="#fcfbf9">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  /* 首屏前应用主题，避免闪白 */
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (e) { document.documentElement.dataset.theme = "light"; }
+  })();
+</script>
 </head>
-<body>
+<body data-page="home" data-root="">
 
-    <stript>
-        let colorbg = new Color4Bg.AmbientLightBg({
-            dom: "box",
-            colors: ["#007FFE","#3099FE","#60B2FE","#90CCFE","#C0E5FE","#F0FFFE"],
-            loop: true
-})
-    </stript>
+<a class="skip-link" href="#main">跳到正文</a>
+<div class="reading-progress" id="readingProgress"></div>
 
-<div class="header">
-    <h1>欢迎来到我的主页</h1>
-</div>
- 
-<div class="content">
-    <h2>个人简历</h2>
-    <!-- 这里可以添加个人简历的详细信息 -->
-    <p>这里是个人简历的内容...</p>
-</div>
- 
-<div class="footer">
-    <p>版权所有 &copy; 2023 我的名字</p>
-</div>
- 
+<header class="site-header">
+  <div class="container inner">
+    <h1 class="site-title">
+      <span class="dot">·</span>
+      <a href="index.html">拾穗集</a>
+      <span class="sub">Gleanings</span>
+    </h1>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="index.html" aria-current="page">首页</a>
+      <a href="archive.html">归档</a>
+      <a href="about.html">关于</a>
+      <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="切换主题">
+        <span class="sun" aria-hidden="true">☀</span>
+        <span class="moon" aria-hidden="true">☾</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="container">
+      <p class="hero-eyebrow">Notes on AI &amp; Code</p>
+      <h2 class="hero-title">把学过的东西，<em>写成能被检验的文字</em>。</h2>
+      <p class="hero-lead">
+        这里是 <span data-site-author>你的名字</span> 的笔记本。写论文推导、写代码踩坑、写自我训练的方法，
+        也写那些当时觉得理所当然、后来才发现理解错了的概念。
+      </p>
+      <div class="hero-meta" id="heroStats"><!-- 由 site.js 注入 --></div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="icon" aria-hidden="true">⌕</span>
+        <label class="sr-only" for="searchInput">搜索文章</label>
+        <input id="searchInput" type="search" placeholder="搜索标题、摘要或标签…" autocomplete="off">
+      </div>
+      <div class="tag-filters" id="tagFilters" role="group" aria-label="按标签筛选"><!-- 由 site.js 注入 --></div>
+    </div>
+
+    <div class="section-head">
+      <h2>全部文章</h2>
+      <span class="hint">按时间倒序</span>
+    </div>
+
+    <div id="postList" class="card-grid">
+      <noscript>
+        <div class="empty-state">
+          文章列表需要 JavaScript。你也可以直接打开 <code>posts/</code> 目录下的 HTML 文件阅读。
+        </div>
+      </noscript>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container inner">
+    <p>
+      © <span data-year>2026</span> <span data-site-author>你的名字</span> ·
+      用纯 HTML/CSS/JS 手写，托管在 GitHub Pages
+    </p>
+    <nav aria-label="页脚导航">
+      <a href="archive.html">归档</a>
+      <a href="about.html">关于</a>
+      <a href="mailto:you@example.com" data-site-email>you@example.com</a>
+    </nav>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部">↑</button>
+
+<script src="assets/posts.js"></script>
+<script src="assets/site-config.js"></script>
+<script src="assets/site.js"></script>
 </body>
 </html>
