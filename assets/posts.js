@@ -47,5 +47,14 @@ const POSTS = [
     excerpt:
       "从零到一条可访问的公网链接：仓库初始化、Actions 自动发布、自定义域名与 HTTPS，全程零成本。",
     minutes: 6
-  }
+  },
+  {
+    slug: "test",
+    title: "测试文章",
+    date: "1970-01-01",
+    tags: ["工程实践", "Web"],
+    excerpt:
+      "测试",
+    minutes: 1
+  },
 ];

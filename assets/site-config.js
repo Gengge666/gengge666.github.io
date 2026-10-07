@@ -4,10 +4,10 @@
 const SITE = {
   name: "拾穗集",
   tagline: "GLEANINGS",
-  author: "你的名字",                    // ← 改成你自己的名字
+  author: "Geng2085",                    // ← 改成你自己的名字
   role: "人工智能专业 · 本科在读",
   bio: "记录机器学习、编程与自我训练过程中的所得。不求写出多漂亮的文字，只求每一篇都对半年后的自己有用。",
-  email: "you@example.com",              // ← 改成你的邮箱
+  email: "genggge666@gmail.com",              // ← 改成你的邮箱
   avatarText: "拾",
   // 首页 hero 上的统计数字
   stats: [
@@ -20,8 +20,8 @@ const SITE = {
   ],
   // 关于页 & 页脚的社交链接，不需要的删掉即可
   links: [
-    { label: "GitHub", href: "https://github.com/" },
-    { label: "邮箱", href: "mailto:you@example.com" },
+    { label: "GitHub", href: "https://github.com/Gengge666" },
+    { label: "邮箱", href: "mailto:genggge666@gmail.com" },
     { label: "RSS", href: "#" }
   ],
   // 关于页时间线
