@@ -236,6 +236,13 @@
         return "<li>" + esc(s) + "</li>";
       }).join("");
     }
+
+    var hbEl = $("#profileHobbies");
+    if (hbEl) {
+      hbEl.innerHTML = SITE.hobbies.map(function (s) {
+        return "<li>" + esc(s) + "</li>";
+      }).join("");
+    }
   }
 
   /* ---------- 6. 文章页：目录 / 进度 / 复制 / 上下篇 ---------- */

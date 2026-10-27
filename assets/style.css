@@ -456,8 +456,8 @@ html[data-theme="dark"] .theme-toggle .moon { display: inline; }
 .timeline .what { color: var(--text); }
 .timeline .what strong { color: var(--text-strong); }
 
-.skill-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
-.skill-list li {
+.skill-list, .hobby-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+.skill-list li, .hobby-list li {
   font-size: .85rem; padding: .35rem .75rem; border-radius: 999px;
   background: var(--surface-2); border: 1px solid var(--border); color: var(--muted);
 }

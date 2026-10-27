@@ -52,9 +52,18 @@ const POSTS = [
     slug: "test",
     title: "测试文章",
     date: "1970-01-01",
-    tags: ["工程实践", "Web"],
+    tags: ["随笔", "Web"],
     excerpt:
       "测试",
     minutes: 1
   },
+  {
+    slug: "test copy",
+    title: "无题",
+    date: "2026-10-27",
+    tags: ["随笔", "Web"], 
+    excerpt:
+      "不知道",
+    minutes: 10
+  }
 ];

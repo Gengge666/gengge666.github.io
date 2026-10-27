@@ -6,7 +6,7 @@ const SITE = {
   tagline: "GLEANINGS",
   author: "Geng2085",                    // ← 改成你自己的名字
   role: "人工智能专业 · 本科在读",
-  bio: "记录机器学习、编程与自我训练过程中的所得。不求写出多漂亮的文字，只求每一篇都对半年后的自己有用。",
+  bio: "石家庄学院的一个小喽啰。记录机器学习、编程与自我训练过程中的所得。不求写出多漂亮的文字，只求每一篇都对半年后的自己有用。",
   email: "genggge666@gmail.com",              // ← 改成你的邮箱
   avatarText: "拾",
   // 首页 hero 上的统计数字
@@ -46,5 +46,10 @@ const SITE = {
   skills: [
     "Python", "PyTorch", "NumPy", "线性代数", "概率论",
     "Git", "Linux", "SQL", "HTML/CSS", "Markdown"
+  ],
+  hobbies: [
+    "阅读", "电影", "音乐", "游戏", "旅行",
   ]
+
+  
 };
